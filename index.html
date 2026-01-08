@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <title>Verifikasi Perangkat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <style>
     body {
-      background:#0f172a;
+      background:#020617;
       color:#e5e7eb;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       display:flex;
@@ -22,7 +25,8 @@
       padding:24px;
       max-width:420px;
       width:100%;
-      box-shadow:0 10px 30px rgba(0,0,0,.4);
+      box-shadow:0 10px 30px rgba(0,0,0,.45);
+      text-align:center;
     }
     h2 { margin-top:0; font-size:20px; }
     p { color:#cbd5f5; font-size:14px; line-height:1.5; }
@@ -45,15 +49,15 @@
       margin-top:16px;
       font-size:13px;
       color:#a5b4fc;
-      word-break:break-all;
+      word-break:break-word;
     }
   </style>
 </head>
 <body>
   <div class="card">
     <h2>Verifikasi Perangkat</h2>
-    <p id="desc">Tekan tombol di bawah untuk menyelesaikan proses verifikasi perangkat Anda.</p>
-    <button id="verifyBtn">Verifikasi Sekarang</button>
+    <p id="desc">Klik tombol di bawah untuk menyelesaikan verifikasi.</p>
+    <button id="verifyBtn">Verifikasi</button>
     <div class="status" id="status"></div>
   </div>
 

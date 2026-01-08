@@ -1,4 +1,4 @@
-// ===== Firebase Config (ISI SESUAI PROJECT) =====
+// ===== Firebase Config =====
 const firebaseConfig = {
   apiKey: "AIzaSyBiWTGD94Ouv4E-XmvlV4y4iEztI65605g",
   authDomain: "login-dialog.firebaseapp.com",
@@ -8,19 +8,23 @@ const firebaseConfig = {
 
 // ===== Load Firebase SDK =====
 (function(){
-  const s1 = document.createElement("script");
-  s1.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
-  document.head.appendChild(s1);
+  const a = document.createElement("script");
+  a.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
+  document.head.appendChild(a);
 
-  const s2 = document.createElement("script");
-  s2.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js";
-  document.head.appendChild(s2);
+  const b = document.createElement("script");
+  b.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js";
+  document.head.appendChild(b);
 
-  s2.onload = init;
+  b.onload = init;
 })();
 
 function qs(name){
-  return new URLSearchParams(window.location.search).get(name);
+  return new URLSearchParams(location.search).get(name);
+}
+
+function clearUrl(){
+  history.replaceState({}, document.title, location.pathname);
 }
 
 function init(){
@@ -29,19 +33,19 @@ function init(){
 
   const did = qs("did");
   const token = qs("token");
-
   const status = document.getElementById("status");
   const btn = document.getElementById("verifyBtn");
 
   if(!did || !token){
-    status.textContent = "Parameter verifikasi tidak valid.";
+    status.textContent = "Link verifikasi sudah tidak valid.";
     btn.disabled = true;
+    clearUrl();
     return;
   }
 
   btn.onclick = async () => {
     btn.disabled = true;
-    status.textContent = "Memproses verifikasi...";
+    status.textContent = "Memverifikasi perangkat...";
 
     try {
       await db.ref("verified/" + did).set({
@@ -50,12 +54,15 @@ function init(){
         token: token
       });
 
-      status.textContent = "✅ Verifikasi berhasil. Silakan kembali ke aplikasi.";
-      document.getElementById("desc").textContent =
-        "Perangkat Anda telah berhasil diverifikasi.";
+      clearUrl();
+      status.textContent = "✅ Verifikasi berhasil. Mengalihkan ke bot...";
+
+      setTimeout(() => {
+        location.replace("https://t.me/" + (qs("bot") || ""));
+      }, 1500);
+
     } catch (e){
-      status.textContent = "❌ Verifikasi gagal: " + e.message;
-      btn.disabled = false;
+      status.textContent = "❌ Verifikasi gagal atau link kadaluarsa.";
     }
   };
 }
