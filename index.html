@@ -1,11 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Verifikasi</title>
+  <title>Verifikasi Perangkat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background:#0f172a;
+      color:#e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+      margin:0;
+    }
+    .card {
+      background:#020617;
+      border:1px solid #1e293b;
+      border-radius:14px;
+      padding:24px;
+      max-width:420px;
+      width:100%;
+      box-shadow:0 10px 30px rgba(0,0,0,.4);
+    }
+    h2 { margin-top:0; font-size:20px; }
+    p { color:#cbd5f5; font-size:14px; line-height:1.5; }
+    button {
+      width:100%;
+      margin-top:16px;
+      padding:12px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      background:#2563eb;
+      color:white;
+    }
+    button:disabled {
+      background:#475569;
+      cursor:not-allowed;
+    }
+    .status {
+      margin-top:16px;
+      font-size:13px;
+      color:#a5b4fc;
+      word-break:break-all;
+    }
+  </style>
 </head>
 <body>
-  <h2>Halaman Verifikasi</h2>
-  <p>Memproses...</p>
+  <div class="card">
+    <h2>Verifikasi Perangkat</h2>
+    <p id="desc">Tekan tombol di bawah untuk menyelesaikan proses verifikasi perangkat Anda.</p>
+    <button id="verifyBtn">Verifikasi Sekarang</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
