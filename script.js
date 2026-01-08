@@ -31,7 +31,7 @@ const DEFAULT_BOT_USERNAME = ""; // contoh: "NamaBotKamu"
   function redirectToBot(payload) {
     const b = sessionStorage.getItem("tg_bot");
     if (!b) {
-      statusEl.textContent = "Selesai. Kembali ke Telegram.";
+      statusEl.textContent = "Done. Back to Telegram.";
       return;
     }
 
