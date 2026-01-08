@@ -1,66 +1,104 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Verifikasi Perangkat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta http-equiv="Cache-Control" content="no-store" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <title>Verifikasi</title>
   <style>
-    body {
-      background:#020617;
-      color:#e5e7eb;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      height:100vh;
-      margin:0;
+    :root { color-scheme: dark; }
+    body{
+      margin:0; height:100vh; display:flex; align-items:center; justify-content:center;
+      background:#020617; color:#e5e7eb; font-family: system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
     }
-    .card {
-      background:#020617;
-      border:1px solid #1e293b;
-      border-radius:14px;
-      padding:24px;
-      max-width:420px;
-      width:100%;
-      box-shadow:0 10px 30px rgba(0,0,0,.45);
-      text-align:center;
+    .card{
+      width:min(520px,92vw);
+      border:1px solid #1e293b; border-radius:16px;
+      background:#0b1220; padding:22px; box-shadow:0 12px 36px rgba(0,0,0,.45);
     }
-    h2 { margin-top:0; font-size:20px; }
-    p { color:#cbd5f5; font-size:14px; line-height:1.5; }
-    button {
-      width:100%;
-      margin-top:16px;
-      padding:12px;
-      border-radius:10px;
-      border:none;
-      cursor:pointer;
-      font-weight:600;
-      background:#2563eb;
-      color:white;
-    }
-    button:disabled {
-      background:#475569;
-      cursor:not-allowed;
-    }
-    .status {
-      margin-top:16px;
-      font-size:13px;
-      color:#a5b4fc;
-      word-break:break-word;
-    }
+    h1{ font-size:18px; margin:0 0 8px; }
+    p{ font-size:13px; color:#cbd5f5; line-height:1.55; margin:0 0 14px; }
+    .status{ font-size:12px; color:#a5b4fc; word-break:break-word; }
+    .bar{ height:8px; background:#111827; border-radius:999px; overflow:hidden; margin-top:14px; border:1px solid #1f2937; }
+    .bar > div{ height:100%; width:35%; background:#2563eb; border-radius:999px; animation: move 1s infinite ease-in-out; }
+    @keyframes move { 0%{ transform:translateX(-80%);} 50%{ transform:translateX(140%);} 100%{ transform:translateX(240%);} }
+    a{ color:#93c5fd; text-decoration:none; }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>Verifikasi Perangkat</h2>
-    <p id="desc">Klik tombol di bawah untuk menyelesaikan verifikasi.</p>
-    <button id="verifyBtn">Verifikasi</button>
-    <div class="status" id="status"></div>
+    <h1>Memproses Verifikasi</h1>
+    <p>Halaman ini hanya untuk menyelesaikan verifikasi. Setelah sukses, kamu akan otomatis kembali ke bot.</p>
+    <div class="status" id="status">Menyiapkan...</div>
+    <div class="bar" aria-hidden="true"><div></div></div>
   </div>
 
-  <script src="script.js"></script>
+<script>
+(function(){
+  const qs = new URLSearchParams(location.search);
+  const did = qs.get("did");
+  const token = qs.get("token");
+  const bot = qs.get("bot"); // username bot telegram tanpa @ (optional tapi disarankan)
+  const okPayload = qs.get("ok") || "verified";
+  const badPayload = qs.get("bad") || "invalid";
+
+  const statusEl = document.getElementById("status");
+
+  // Simpan bot ke sessionStorage supaya setelah URL dibersihin, refresh tetap bisa redirect.
+  if (bot) sessionStorage.setItem("tg_bot", bot);
+  const botStored = sessionStorage.getItem("tg_bot");
+
+  function clearUrl(){
+    history.replaceState({}, document.title, location.pathname);
+  }
+
+  function redirectToBot(payload){
+    const b = bot || botStored;
+    if (!b) {
+      // kalau bot gak ada, stop di sini
+      statusEl.textContent = "Selesai. Kembali ke Telegram.";
+      return;
+    }
+    const url = payload ? ("https://t.me/" + b + "?start=" + encodeURIComponent(payload)) : ("https://t.me/" + b);
+    location.replace(url);
+  }
+
+  // Kalau tidak ada parameter => link sudah dibersihkan / invalid. Langsung balik ke bot.
+  if (!did || !token) {
+    statusEl.textContent = "Link sudah tidak valid. Mengalihkan...";
+    clearUrl();
+    setTimeout(()=>redirectToBot(badPayload), 600);
+    return;
+  }
+
+  // Bersihin URL secepat mungkin supaya gak bisa disalin setelah sukses
+  // (token tetap aman karena validasi server-side, ini cuma buat mengurangi kebocoran di UI)
+  clearUrl();
+  statusEl.textContent = "Menghubungi server...";
+
+  fetch("/api/verify?did=" + encodeURIComponent(did)
+        + "&token=" + encodeURIComponent(token)
+        + (bot ? ("&bot=" + encodeURIComponent(bot)) : "")
+        + "&ok=" + encodeURIComponent(okPayload)
+        + "&bad=" + encodeURIComponent(badPayload),
+        { method: "GET", cache: "no-store" })
+    .then(r => r.json())
+    .then(j => {
+      if (j && j.ok) {
+        statusEl.textContent = "✅ Verifikasi berhasil. Mengalihkan ke bot...";
+        setTimeout(()=>redirectToBot(okPayload), 900);
+      } else {
+        statusEl.textContent = "❌ Link tidak valid / sudah dipakai. Mengalihkan...";
+        setTimeout(()=>redirectToBot(badPayload), 900);
+      }
+    })
+    .catch(() => {
+      statusEl.textContent = "⚠️ Server error. Coba lagi.";
+      setTimeout(()=>redirectToBot(badPayload), 1200);
+    });
+})();
+</script>
 </body>
 </html>
